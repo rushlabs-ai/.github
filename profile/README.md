@@ -1,1 +1,15 @@
-%23%20Rush%20Labs%0A%0AAn%20applied%20AI%20lab.%20We%20build%20open-source%20tools%20for%20fine-tuning%2C%20retrieval%20and%20local%20AI%2C%20and%20train%20and%20benchmark%20them%20on%20NVIDIA%20GPUs.%0A%0A%7C%20Project%20%7C%20What%20it%20does%20%7C%20Status%20%7C%0A%7C%20---%20%7C%20---%20%7C%20---%20%7C%0A%7C%20%5Btunekeep%5D%28https%3A%2F%2Fgithub.com%2Frushlabs-ai%2Ftunekeep%29%20%7C%20Keep%20a%20fine-tuned%20model%20working%20when%20its%20provider%20retires%20the%20base%20model%3A%20record%20it%2C%20test%20a%20replacement%2C%20retrain%20on%20open%20weights%20if%20needed.%20%7C%20v0.2.2%20on%20%5BPyPI%5D%28https%3A%2F%2Fpypi.org%2Fproject%2Ftunekeep%2F%29%20%7C%0A%7C%20%5BCrosscheck%5D%28https%3A%2F%2Fgithub.com%2Frushlabs-ai%2Fcrosscheck%29%20%7C%20A%20second%20opinion%20for%20AI%20photo%20descriptions%3A%20several%20local%20vision%20models%20describe%20a%20photo%2C%20and%20you%20hear%20where%20they%20agree%20and%20where%20they%20disagree.%20%7C%20v0.3.0%20on%20%5BPyPI%5D%28https%3A%2F%2Fpypi.org%2Fproject%2Fcrosscheck-vision%2F%29%20%7C%0A%7C%20%5Brerankd%5D%28https%3A%2F%2Fgithub.com%2Frushlabs-ai%2Frerankd%29%20%7C%20Rerank%20for%20Ollama%3A%20adds%20%60%2Fapi%2Frerank%60%20and%20%60%2Fv1%2Frerank%60%20using%20the%20reranker%20models%20you%20already%20pulled%2C%20and%20passes%20everything%20else%20through.%20%7C%20v0.1.1%20%7C%0A%7C%20%5BRush%20Index%5D%28https%3A%2F%2Fgithub.com%2Frushlabs-ai%2Frush-index%29%20%7C%20One%20local%20search%20over%20your%20documents%20and%20photos%2C%20on%20any%20laptop%20or%20an%20NVIDIA%20GPU.%20%7C%20v0.2.0%20%7C%0A%7C%20%5BRush%20Small%5D%28https%3A%2F%2Fgithub.com%2Frushlabs-ai%2Frush-small%29%20%7C%20A%20small%2C%20cleanly%20licensed%20reranker%20you%20can%20reproduce%20with%20one%20command.%20%7C%20Research%2C%20v0%20baseline%20%7C%0A%0AEvery%20project%20is%20Apache-2.0%20licensed.%0A%0A%5Brushlabs.ai%5D%28https%3A%2F%2Frushlabs.ai%29%20%
+# Rush Labs
+
+An applied AI lab. We build open-source tools for fine-tuning, retrieval and local AI, and train and benchmark them on NVIDIA GPUs.
+
+| Project | What it does | Status |
+| --- | --- | --- |
+| [tunekeep](https://github.com/rushlabs-ai/tunekeep) | Keep a fine-tuned model working when its provider retires the base model: record it, test a replacement, retrain on open weights if needed. | v0.2.2 on [PyPI](https://pypi.org/project/tunekeep/) |
+| [Crosscheck](https://github.com/rushlabs-ai/crosscheck) | A second opinion for AI photo descriptions: several local vision models describe a photo, and you hear where they agree and where they disagree. | v0.3.0 on [PyPI](https://pypi.org/project/crosscheck-vision/) |
+| [rerankd](https://github.com/rushlabs-ai/rerankd) | Rerank for Ollama: adds `/api/rerank` and `/v1/rerank` using the reranker models you already pulled, and passes everything else through. | v0.1.1 |
+| [Rush Index](https://github.com/rushlabs-ai/rush-index) | One local search over your documents and photos, on any laptop or an NVIDIA GPU. | v0.2.0 |
+| [Rush Small](https://github.com/rushlabs-ai/rush-small) | A small, cleanly licensed reranker you can reproduce with one command. | Research, v0 baseline |
+
+Every project is Apache-2.0 licensed.
+
+[rushlabs.ai](https://rushlabs.ai) · [admin@rushlabs.ai](mailto:admin@rushlabs.ai)
