@@ -381,7 +381,7 @@ def card_lines(p):
     return balanced(p["summary"], BODY, 15, CARD_W - 2 * 22)
 
 
-CARD_H = 12 + COVER_H + 34 + 34 + max(len(card_lines(p)) for p in PROJECTS) * 23 + 14
+CARD_H = 12 + COVER_H + 34 + 34 + max(len(card_lines(p)) for p in PROJECTS) * 23 + 24
 
 
 def card(p, t, side, uid):
