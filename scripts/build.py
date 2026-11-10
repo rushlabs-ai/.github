@@ -5,7 +5,7 @@ Run:  python3 scripts/build.py [path/to/fonts]
 Fonts: archivo-expanded-800.ttf and archivo-400.ttf (SIL OFL), the same files
 rushlabs.ai uses. Text is drawn as glyph paths because GitHub's image proxy
 blocks web fonts. Colours and type follow rushlabs.ai (see its DESIGN.md):
-the deep green theme, wide Archivo for display, the hero current.
+deep green and beige themes, wide Archivo for display, the hero current.
 Asset names carry a content hash so GitHub's image cache never shows stale art.
 """
 from pathlib import Path
@@ -181,72 +181,50 @@ def calm(uid, w, h, x, y, rw, rh):
             f'<rect x="{x}" y="{y}" width="{rw}" height="{rh}" rx="20" fill="#000" fill-opacity=".8" filter="url(#{uid}b)"/></mask>')
 
 
-def chips(doc, x, y, items, t, size=14, h=32, gap=8, padx=14, max_x=None, row_gap=8):
-    out, cx, cy = [], x, y
-    for it in items:
-        w = BODY.width(it, size) + 2 * padx
-        if max_x and cx + w > max_x and cx > x:
-            cx, cy = x, cy + h + row_gap
-        out.append(f'<rect x="{cx:.1f}" y="{cy}" width="{w:.1f}" height="{h}" rx="{h / 2}" fill="{t["surface"]}" stroke="{t["line"]}"/>')
-        out.append(doc.text(cx + padx, cy + h / 2 + size * 0.36, it, BODY, size, t["fg"]))
-        cx += w + gap
-    return "".join(out), cy + h
-
-
 # ── Copy (mirrors rushlabs.ai: components/site/hero.tsx, lib/content/*) ───────
-HEADLINE = ["Open-source", "tools for", "open models."]
-INTRO = ("Four released tools and a research model for fine-tuning, retrieval and local AI, "
-         "each with its code, tests and benchmarks in the open.")
-STACK = ["PyTorch", "CUDA", "Hugging Face", "llama.cpp", "ONNX Runtime", "Ollama"]
-HEADER_ALT = ("Rush Labs, an applied AI lab. Open-source tools for open models. " + INTRO +
-              " Built with " + ", ".join(STACK) + ".")
+HEADLINE = ["Open-source tools", "for open models."]
+HEADLINE_M = ["Open-source", "tools for", "open models."]
+INTRO = "Four released tools and a research model for fine-tuning, retrieval and local AI."
+HEADER_ALT = "Rush Labs, an applied AI lab. Open-source tools for open models. " + INTRO
 
 
 def header(t, uid):
-    W, H, P = 1000, 470, 44
+    W, P = 1000, 44
+    size, lead = 68, 62
+    assert WIDE.width(HEADLINE[0], size, -0.025) < W - 2 * P
+    intro_y = 158 + lead + 56
+    H = intro_y + 50
     doc = Doc()
     adefs, abody = atmosphere(W, H, t, uid)
     clip = f'<clipPath id="{uid}c"><rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="20"/></clipPath>'
     b = [f'<rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="20" fill="{t["bg"]}" stroke="{t["line"]}"/>',
-         f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 150, 19)}</g></g>']
+         f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 120, 19)}</g></g>']
     b.append(doc.text(P, 66, "Rush Labs", WIDE, 19, t["fg"], -0.01))
     b.append(doc.text(W - P, 66, "Applied AI lab", BODY, 16, t["muted"], anchor="end"))
-    size, lead = 70, 63
     for i, line in enumerate(HEADLINE):
         b.append(doc.text(P - 3, 158 + i * lead, line, WIDE, size, t["fg"], -0.025))
-    for i, line in enumerate(wrap(INTRO, BODY, 19, 600)):
-        b.append(doc.text(P, 334 + i * 30, line, BODY, 19, t["fg"]))
-    b.append(f'<line x1="{P}" y1="390" x2="{W - P}" y2="390" stroke="{t["line"]}"/>')
-    b.append(doc.text(P, 428, "Built with", BODY, 15, t["muted"]))
-    c, _ = chips(doc, P + BODY.width("Built with", 15) + 24, 407, STACK, t)
-    b.append(c)
-    return svg(W, H, HEADER_ALT, doc, "".join(b), CURRENT_CSS, adefs + clip + calm(uid, W, H, P - 14, 306, 640, 66))
+    b.append(doc.text(P, intro_y, INTRO, BODY, 19, t["fg"]))
+    mask = calm(uid, W, H, P - 14, intro_y - 26, BODY.width(INTRO, 19) + 28, 38)
+    return svg(W, H, HEADER_ALT, doc, "".join(b), CURRENT_CSS, adefs + clip + mask)
 
 
 def header_m(t, uid):
     W, P = 400, 24
-    doc = Doc()
-    b = []
-    b.append(doc.text(P, 46, "Rush Labs", WIDE, 16, t["fg"], -0.01))
     size, lead = 37, 34
-    for i, line in enumerate(HEADLINE):
+    doc = Doc()
+    b = [doc.text(P, 46, "Rush Labs", WIDE, 16, t["fg"], -0.01)]
+    for i, line in enumerate(HEADLINE_M):
         b.append(doc.text(P - 1, 108 + i * lead, line, WIDE, size, t["fg"], -0.025))
     y = 108 + 2 * lead + 44
-    lines = wrap(INTRO, BODY, 17, W - 2 * P)
+    lines = balanced(INTRO, BODY, 17, W - 2 * P)
     for i, line in enumerate(lines):
         b.append(doc.text(P, y + i * 26, line, BODY, 17, t["fg"]))
-    y += (len(lines) - 1) * 26 + 30
-    b.append(f'<line x1="{P}" y1="{y}" x2="{W - P}" y2="{y}" stroke="{t["line"]}"/>')
-    b.append(doc.text(P, y + 34, "Built with", BODY, 15, t["muted"]))
-    c, bottom = chips(doc, P, y + 50, STACK, t, size=14, h=30, max_x=W - P)
-    b.append(c)
-    H = bottom + 26
+    H = y + (len(lines) - 1) * 26 + 30
     adefs, abody = atmosphere(W, H, t, uid)
     clip = f'<clipPath id="{uid}c"><rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="18"/></clipPath>'
     frame = (f'<rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="18" fill="{t["bg"]}" stroke="{t["line"]}"/>'
-             f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 70, 23, steps=26)}</g></g>')
-    intro_top = 108 + 2 * lead + 44 - 22
-    mask = calm(uid, W, H, P - 10, intro_top, W - 2 * P + 20, len(lines) * 26 + 10)
+             f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 60, 23, steps=26)}</g></g>')
+    mask = calm(uid, W, H, P - 10, y - 22, W - 2 * P + 20, len(lines) * 26 + 10)
     return svg(W, H, HEADER_ALT, doc, frame + "".join(b), CURRENT_CSS, adefs + clip + mask)
 
 
@@ -355,30 +333,24 @@ MOTIFS = {"embed": m_embed, "train": m_train, "quant": m_quant, "cli": m_cli, "s
 
 # ── Project cards (rushlabs.ai home: cover, status, name, summary) ───────────
 PROJECTS = [
-    dict(key="tunekeep", name="tunekeep", status="Released: v0.2.2", motif="train",
+    dict(key="tunekeep", name="tunekeep", status="v0.2.2", motif="train",
          href="https://github.com/rushlabs-ai/tunekeep",
-         summary="Keep a fine-tuned model working when its provider retires the base model: record it, test a "
-                 "replacement, retrain on open weights if needed."),
-    dict(key="crosscheck", name="Crosscheck", status="Released: v0.3.0", motif="embed",
+         summary="Keep a fine-tuned model working when its provider retires the base model."),
+    dict(key="crosscheck", name="Crosscheck", status="v0.3.0", motif="embed",
          href="https://github.com/rushlabs-ai/crosscheck",
-         summary="A second opinion for AI photo descriptions: several local vision models describe a photo, and "
-                 "you hear where they agree and where they disagree."),
-    dict(key="rerankd", name="rerankd", status="Released: v0.1.1", motif="cli",
+         summary="Several local vision models describe a photo, and you hear where they disagree."),
+    dict(key="rerankd", name="rerankd", status="v0.1.1", motif="cli",
          href="https://github.com/rushlabs-ai/rerankd",
-         summary="Rerank for Ollama: adds the rerank endpoints apps expect, using the reranker models you already "
-                 "pulled, and passes everything else through."),
-    dict(key="rush-index", name="Rush Index", status="Released: v0.2.0", motif="search",
+         summary="Rerank endpoints for Ollama, using the reranker models you already pulled."),
+    dict(key="rush-index", name="Rush Index", status="v0.2.0", motif="search",
          href="https://github.com/rushlabs-ai/rush-index",
-         summary="One local search over your documents and photos: type what you are looking for and get matching "
-                 "files and pictures together, on any laptop or an NVIDIA GPU."),
-    dict(key="rush-small", name="Rush Small", status="Research: v0 baseline", motif="quant",
+         summary="Search your documents and photos together, locally, on any laptop or an NVIDIA GPU."),
+    dict(key="rush-small", name="Rush Small", status="v0 research", motif="quant",
          href="https://github.com/rushlabs-ai/rush-small",
-         summary="A small, cleanly licensed reranker you can reproduce with one command: a 0.6B model taught by a "
-                 "4B one, on permissively licensed data only."),
+         summary="A 0.6B reranker trained only on permissively licensed data, reproducible with one command."),
     dict(key="lab", name="The lab", status="rushlabs.ai", motif="current",
          href="https://rushlabs.ai",
-         summary="Why we picked each project, how we build and release a model, and the results for every tool, "
-                 "with links to the result files."),
+         summary="Why we picked each project, how we build models, and every result."),
 ]
 CARD_W, GAP = 488, 24
 COVER_H = 220
@@ -394,8 +366,19 @@ def cover(x, y, w, h, motif, t, uid, rx=16):
     return clip, body
 
 
+def balanced(s, font, size, max_w):
+    """Wrap like CSS text-wrap: balance for two lines: no lone word on the last line."""
+    lines = wrap(s, font, size, max_w)
+    if len(lines) != 2:
+        return lines
+    words = s.split(" ")
+    best = min((max(font.width(" ".join(words[:i]), size), font.width(" ".join(words[i:]), size)), i)
+               for i in range(1, len(words)))
+    return [" ".join(words[:best[1]]), " ".join(words[best[1]:])]
+
+
 def card_lines(p):
-    return wrap(p["summary"], BODY, 15, CARD_W - 2 * 22)
+    return balanced(p["summary"], BODY, 15, CARD_W - 2 * 22)
 
 
 CARD_H = 12 + COVER_H + 34 + 34 + max(len(card_lines(p)) for p in PROJECTS) * 23 + 14
@@ -453,9 +436,7 @@ def icon_mail():
 # ── Build ───────────────────────────────────────────────────────────────────
 def main():
     files = {"icon-web": icon_web(), "icon-mail": icon_mail()}
-    # Dark only: the profile shows the deep green theme in GitHub's light and dark modes alike.
-    for name in ("dark",):
-        t = THEMES[name]
+    for name, t in THEMES.items():
         files[f"header-{name}"] = header(t, "h")
         files[f"header-m-{name}"] = header_m(t, "h")
         for i, p in enumerate(PROJECTS):
@@ -473,9 +454,12 @@ def main():
     mobile = "(max-width: 767px)"
 
     def pic(stem, alt, width="100%", href=None, m=None):
-        out = f'<img alt="{escape(alt)}" src="assets/{stem}-dark.{ver}.svg" width="{width}">'
+        src = ""
         if m:
-            out = f'<picture><source media="{mobile}" srcset="assets/{m}-dark.{ver}.svg">{out}</picture>'
+            src += (f'<source media="{mobile} and (prefers-color-scheme: dark)" srcset="assets/{m}-dark.{ver}.svg">'
+                    f'<source media="{mobile}" srcset="assets/{m}-light.{ver}.svg">')
+        src += f'<source media="(prefers-color-scheme: dark)" srcset="assets/{stem}-dark.{ver}.svg">'
+        out = f'<picture>{src}<img alt="{escape(alt)}" src="assets/{stem}-light.{ver}.svg" width="{width}"></picture>'
         return f'<a href="{href}">{out}</a>' if href else out
 
     blocks = [pic("header", HEADER_ALT, href="https://rushlabs.ai", m="header-m")]
