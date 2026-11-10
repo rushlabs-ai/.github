@@ -5,7 +5,7 @@ Run:  python3 scripts/build.py [path/to/fonts]
 Fonts: archivo-expanded-800.ttf and archivo-400.ttf (SIL OFL), the same files
 rushlabs.ai uses. Text is drawn as glyph paths because GitHub's image proxy
 blocks web fonts. Colours and type follow rushlabs.ai (see its DESIGN.md):
-deep green and beige themes, wide Archivo for display, the hero current.
+the deep green theme, wide Archivo for display, the hero current.
 Asset names carry a content hash so GitHub's image cache never shows stale art.
 """
 from pathlib import Path
@@ -453,7 +453,9 @@ def icon_mail():
 # ── Build ───────────────────────────────────────────────────────────────────
 def main():
     files = {"icon-web": icon_web(), "icon-mail": icon_mail()}
-    for name, t in THEMES.items():
+    # Dark only: the profile shows the deep green theme in GitHub's light and dark modes alike.
+    for name in ("dark",):
+        t = THEMES[name]
         files[f"header-{name}"] = header(t, "h")
         files[f"header-m-{name}"] = header_m(t, "h")
         for i, p in enumerate(PROJECTS):
@@ -471,12 +473,9 @@ def main():
     mobile = "(max-width: 767px)"
 
     def pic(stem, alt, width="100%", href=None, m=None):
-        src = ""
+        out = f'<img alt="{escape(alt)}" src="assets/{stem}-dark.{ver}.svg" width="{width}">'
         if m:
-            src += (f'<source media="{mobile} and (prefers-color-scheme: dark)" srcset="assets/{m}-dark.{ver}.svg">'
-                    f'<source media="{mobile}" srcset="assets/{m}-light.{ver}.svg">')
-        src += f'<source media="(prefers-color-scheme: dark)" srcset="assets/{stem}-dark.{ver}.svg">'
-        out = f'<picture>{src}<img alt="{escape(alt)}" src="assets/{stem}-light.{ver}.svg" width="{width}"></picture>'
+            out = f'<picture><source media="{mobile}" srcset="assets/{m}-dark.{ver}.svg">{out}</picture>'
         return f'<a href="{href}">{out}</a>' if href else out
 
     blocks = [pic("header", HEADER_ALT, href="https://rushlabs.ai", m="header-m")]
