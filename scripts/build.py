@@ -27,15 +27,21 @@ FONT_IDS = {id(WIDE): "w", id(BODY): "b"}
 
 # rushlabs.ai tokens (app/globals.css)
 THEMES = {
-    "light": dict(bg="#EBDCB3", surface="#FFFCF4", line="#D8C99D", fg="#0A1C16", muted="#4A6358",
-                  live="#2F7A62", screen="#0A1C16",
-                  glow=("#FFFAEE", .55), depth=("#A88860", .16), current=.30),
+    # Light: the site's cream, softer than its beige next to GitHub's white page.
+    "light": dict(bg="#F6EFE3", surface="#FFFCF4", line="#E2D6BF", fg="#0A1C16", muted="#4A6358",
+                  live="#2F7A62", current_ink="#4A6358",
+                  glow=("#FFFFFF", .7), depth=("#A88860", .12), current=.26,
+                  art=dict(bg="#EFE6D3", edge="#E0D3B6", sand="#1F3A32", dune="#A39682", forest="#417C69",
+                           mint="#2F7A62", panel="#E4D9C1", line="#D3C5A3", btn="#F6EFE3",
+                           ink="#1F3A32", ink_alpha=.4)),
     "dark": dict(bg="#0A1C16", surface="#122722", line="#2A4A40", fg="#F6EFE3", muted="#B9A98A",
-                 live="#8CC9B0", screen="#0E231D",
-                 glow=("#417C69", .22), depth=("#E8D5A5", .06), current=.34),
+                 live="#8CC9B0", current_ink="#F6EFE3",
+                 glow=("#417C69", .22), depth=("#E8D5A5", .06), current=.34,
+                 art=dict(bg="#0E231D", edge="#1F3A32", sand="#E8D5A5", dune="#A39682", forest="#417C69",
+                          mint="#7FB9A4", panel="#16302A", line="#24443A", btn="#0F221D",
+                          ink="#F6EFE3", ink_alpha=.5)),
 }
-# cover art palette (components/site/case-cover.tsx), always on the dark screen
-SAND, DUNE, FOREST, MINT = "#E8D5A5", "#A39682", "#417C69", "#7FB9A4"
+# Cover art palettes live in THEMES[...]["art"]. Dark matches components/site/case-cover.tsx.
 ICON_GREY = "#8B949E"
 
 
@@ -198,7 +204,7 @@ def header(t, uid):
     adefs, abody = atmosphere(W, H, t, uid)
     clip = f'<clipPath id="{uid}c"><rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="20"/></clipPath>'
     b = [f'<rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="20" fill="{t["bg"]}" stroke="{t["line"]}"/>',
-         f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 120, 19)}</g></g>']
+         f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["current_ink"], t["current"], 120, 19)}</g></g>']
     b.append(doc.text(P, 66, "Rush Labs", WIDE, 19, t["fg"], -0.01))
     b.append(doc.text(W - P, 66, "Applied AI lab", BODY, 16, t["muted"], anchor="end"))
     for i, line in enumerate(HEADLINE):
@@ -223,13 +229,13 @@ def header_m(t, uid):
     adefs, abody = atmosphere(W, H, t, uid)
     clip = f'<clipPath id="{uid}c"><rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="18"/></clipPath>'
     frame = (f'<rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="18" fill="{t["bg"]}" stroke="{t["line"]}"/>'
-             f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["fg"], t["current"], 60, 23, steps=26)}</g></g>')
+             f'<g clip-path="url(#{uid}c)">{abody}<g mask="url(#{uid}k)">{current(W, H, t["current_ink"], t["current"], 60, 23, steps=26)}</g></g>')
     mask = calm(uid, W, H, P - 10, y - 22, W - 2 * P + 20, len(lines) * 26 + 10)
     return svg(W, H, HEADER_ALT, doc, frame + "".join(b), CURRENT_CSS, adefs + clip + mask)
 
 
 # ── Cover motifs (ported from components/site/case-cover.tsx, 800x500) ──────
-def m_embed():
+def m_embed(a):
     r = prng(11)
     centers = [(210, 170), (560, 140), (450, 360), (170, 380)]
     pts = []
@@ -238,29 +244,29 @@ def m_embed():
             pts.append(dict(x=cx + (r() - .5) * 190, y=cy + (r() - .5) * 140, k=k, s=2 + r() * 3, o=.2 + r() * .45))
     q = (505, 300)
     near = sorted((p for p in pts if p["k"] == 2), key=lambda p: math.hypot(p["x"] - q[0], p["y"] - q[1]))[:5]
-    o = [f'<circle cx="{p["x"]:.1f}" cy="{p["y"]:.1f}" r="{p["s"]:.1f}" fill="{MINT if p["k"] == 2 else DUNE}" '
+    o = [f'<circle cx="{p["x"]:.1f}" cy="{p["y"]:.1f}" r="{p["s"]:.1f}" fill="{a["mint"] if p["k"] == 2 else a["dune"]}" '
          f'opacity="{(p["o"] + .2) if p["k"] == 2 else p["o"]:.2f}"/>' for p in pts]
-    o += [f'<line x1="{q[0]}" y1="{q[1]}" x2="{p["x"]:.1f}" y2="{p["y"]:.1f}" stroke="{SAND}" stroke-opacity=".55" stroke-width="1.5"/>' for p in near]
-    o.append(f'<circle class="ping" cx="{q[0]}" cy="{q[1]}" r="30" fill="none" stroke="{SAND}" stroke-opacity=".35"/>')
-    o.append(f'<circle cx="{q[0]}" cy="{q[1]}" r="10" fill="{SAND}"/>')
-    o.append(f'<rect x="96" y="52" width="300" height="44" rx="22" fill="#16302A" stroke="{FOREST}" stroke-opacity=".7"/>')
-    o.append(f'<circle cx="122" cy="74" r="7" fill="none" stroke="{SAND}" stroke-width="2"/>')
-    o.append(f'<line x1="127" y1="79" x2="133" y2="85" stroke="{SAND}" stroke-width="2" stroke-linecap="round"/>')
-    o.append(f'<rect x="146" y="70" width="170" height="8" rx="4" fill="{SAND}" opacity=".75"/>')
+    o += [f'<line x1="{q[0]}" y1="{q[1]}" x2="{p["x"]:.1f}" y2="{p["y"]:.1f}" stroke="{a["sand"]}" stroke-opacity=".55" stroke-width="1.5"/>' for p in near]
+    o.append(f'<circle class="ping" cx="{q[0]}" cy="{q[1]}" r="30" fill="none" stroke="{a["sand"]}" stroke-opacity=".35"/>')
+    o.append(f'<circle cx="{q[0]}" cy="{q[1]}" r="10" fill="{a["sand"]}"/>')
+    o.append(f'<rect x="96" y="52" width="300" height="44" rx="22" fill="{a["panel"]}" stroke="{a["forest"]}" stroke-opacity=".7"/>')
+    o.append(f'<circle cx="122" cy="74" r="7" fill="none" stroke="{a["sand"]}" stroke-width="2"/>')
+    o.append(f'<line x1="127" y1="79" x2="133" y2="85" stroke="{a["sand"]}" stroke-width="2" stroke-linecap="round"/>')
+    o.append(f'<rect x="146" y="70" width="170" height="8" rx="4" fill="{a["sand"]}" opacity=".75"/>')
     return "".join(o)
 
 
-def m_train():
+def m_train(a):
     r = prng(7)
     pts = " ".join(f"{80 + i * 16},{400 - 250 * (1 - math.exp(-i / 9)) + (r() - .5) * 18:.1f}" for i in range(40))
-    o = [f'<line x1="80" y1="{100 + i * 75}" x2="720" y2="{100 + i * 75}" stroke="{FOREST}" stroke-opacity=".25"/>' for i in range(5)]
-    o.append(f'<line x1="80" y1="260" x2="720" y2="260" stroke="{DUNE}" stroke-opacity=".6" stroke-dasharray="6 7"/>')
-    o.append(f'<polyline class="draw" pathLength="100" points="{pts}" fill="none" stroke="{MINT}" stroke-width="3" stroke-linejoin="round"/>')
-    o.append(f'<circle class="ping" cx="704" cy="152" r="8" fill="{SAND}"/>')
+    o = [f'<line x1="80" y1="{100 + i * 75}" x2="720" y2="{100 + i * 75}" stroke="{a["forest"]}" stroke-opacity=".25"/>' for i in range(5)]
+    o.append(f'<line x1="80" y1="260" x2="720" y2="260" stroke="{a["dune"]}" stroke-opacity=".6" stroke-dasharray="6 7"/>')
+    o.append(f'<polyline class="draw" pathLength="100" points="{pts}" fill="none" stroke="{a["mint"]}" stroke-width="3" stroke-linejoin="round"/>')
+    o.append(f'<circle class="ping" cx="704" cy="152" r="8" fill="{a["sand"]}"/>')
     return "".join(o)
 
 
-def m_quant():
+def m_quant(a):
     r = prng(3)
     levels = [.25, .55, .9]
     o = []
@@ -270,55 +276,55 @@ def m_quant():
             q = col >= 9
             op = levels[min(2, int(v * 3))] if q else .15 + v * .75
             o.append(f'<rect x="{70 + col * 37 + (16 if q else 0)}" y="{60 + row * 38}" width="30" height="30" rx="4" '
-                     f'fill="{MINT if q else DUNE}" opacity="{op:.2f}"/>')
-    o.append(f'<line x1="419" y1="44" x2="419" y2="456" stroke="{SAND}" stroke-opacity=".5" stroke-dasharray="4 6"/>')
+                     f'fill="{a["mint"] if q else a["dune"]}" opacity="{op:.2f}"/>')
+    o.append(f'<line x1="419" y1="44" x2="419" y2="456" stroke="{a["sand"]}" stroke-opacity=".5" stroke-dasharray="4 6"/>')
     return "".join(o)
 
 
-def m_cli(seed=5):
+def m_cli(a, seed=5):
     r = prng(seed)
-    PANEL, LINE = "#16302A", "#24443A"
+    PANEL, LINE = a["panel"], a["line"]
     o = [f'<rect x="60" y="50" width="680" height="400" rx="16" fill="{PANEL}" stroke="{LINE}"/>',
          f'<line x1="60" y1="90" x2="740" y2="90" stroke="{LINE}"/>']
-    o += [f'<circle cx="{86 + i * 18}" cy="70" r="5" fill="{DUNE}" opacity=".35"/>' for i in range(3)]
+    o += [f'<circle cx="{86 + i * 18}" cy="70" r="5" fill="{a["dune"]}" opacity=".35"/>' for i in range(3)]
     for i in range(7):
         y = 124 + i * 34
         o.append(f'<g class="row" style="animation-delay:{i * .18:.2f}s">'
-                 f'<rect x="90" y="{y}" width="14" height="8" rx="4" fill="{MINT}" opacity=".8"/>'
-                 f'<rect x="116" y="{y}" width="{120 + r() * 200:.0f}" height="8" rx="4" fill="{SAND}" opacity=".35"/>'
-                 f'<rect x="560" y="{y}" width="{60 + r() * 60:.0f}" height="8" rx="4" fill="{DUNE}" opacity=".4"/></g>')
-    o.append(f'<rect x="90" y="380" width="250" height="40" rx="20" fill="{MINT}"/>')
-    o.append('<rect x="118" y="396" width="150" height="8" rx="4" fill="#0F221D" opacity=".8"/>')
+                 f'<rect x="90" y="{y}" width="14" height="8" rx="4" fill="{a["mint"]}" opacity=".8"/>'
+                 f'<rect x="116" y="{y}" width="{120 + r() * 200:.0f}" height="8" rx="4" fill="{a["sand"]}" opacity=".35"/>'
+                 f'<rect x="560" y="{y}" width="{60 + r() * 60:.0f}" height="8" rx="4" fill="{a["dune"]}" opacity=".4"/></g>')
+    o.append(f'<rect x="90" y="380" width="250" height="40" rx="20" fill="{a["mint"]}"/>')
+    o.append(f'<rect x="118" y="396" width="150" height="8" rx="4" fill="{a["btn"]}" opacity=".8"/>')
     return "".join(o)
 
 
-def m_search():
+def m_search(a):
     """Rush Index: one query, documents and photos in one ranked list."""
     r = prng(13)
-    o = [f'<rect x="96" y="52" width="608" height="48" rx="24" fill="#16302A" stroke="{FOREST}" stroke-opacity=".7"/>',
-         f'<circle cx="124" cy="75" r="8" fill="none" stroke="{SAND}" stroke-width="2.4"/>',
-         f'<line x1="130" y1="81" x2="137" y2="88" stroke="{SAND}" stroke-width="2.4" stroke-linecap="round"/>',
-         f'<rect x="152" y="71" width="230" height="9" rx="4.5" fill="{SAND}" opacity=".75"/>']
+    o = [f'<rect x="96" y="52" width="608" height="48" rx="24" fill="{a["panel"]}" stroke="{a["forest"]}" stroke-opacity=".7"/>',
+         f'<circle cx="124" cy="75" r="8" fill="none" stroke="{a["sand"]}" stroke-width="2.4"/>',
+         f'<line x1="130" y1="81" x2="137" y2="88" stroke="{a["sand"]}" stroke-width="2.4" stroke-linecap="round"/>',
+         f'<rect x="152" y="71" width="230" height="9" rx="4.5" fill="{a["sand"]}" opacity=".75"/>']
     for i, kind in enumerate(("doc", "photo", "doc", "photo", "doc")):
         y = 124 + i * 66
-        g = [f'<rect x="96" y="{y}" width="608" height="54" rx="12" fill="#16302A" opacity="{.9 if i == 0 else .55}"/>']
+        g = [f'<rect x="96" y="{y}" width="608" height="54" rx="12" fill="{a["panel"]}" opacity="{.9 if i == 0 else .55}"/>']
         if kind == "doc":
-            g.append(f'<rect x="114" y="{y + 10}" width="27" height="34" rx="4" fill="none" stroke="{SAND}" stroke-opacity=".7" stroke-width="2"/>')
-            g.append(f'<rect x="120" y="{y + 20}" width="15" height="3" rx="1.5" fill="{SAND}" opacity=".6"/>')
-            g.append(f'<rect x="120" y="{y + 28}" width="11" height="3" rx="1.5" fill="{SAND}" opacity=".6"/>')
+            g.append(f'<rect x="114" y="{y + 10}" width="27" height="34" rx="4" fill="none" stroke="{a["sand"]}" stroke-opacity=".7" stroke-width="2"/>')
+            g.append(f'<rect x="120" y="{y + 20}" width="15" height="3" rx="1.5" fill="{a["sand"]}" opacity=".6"/>')
+            g.append(f'<rect x="120" y="{y + 28}" width="11" height="3" rx="1.5" fill="{a["sand"]}" opacity=".6"/>')
         else:
-            g.append(f'<rect x="110" y="{y + 10}" width="44" height="34" rx="5" fill="{FOREST}"/>')
-            g.append(f'<path d="M112 {y + 42} L126 {y + 26} L136 {y + 35} L142 {y + 29} L152 {y + 42} Z" fill="{MINT}" opacity=".9"/>')
-            g.append(f'<circle cx="143" cy="{y + 19}" r="4" fill="{SAND}"/>')
-        g.append(f'<rect x="172" y="{y + 15}" width="{150 + r() * 190:.0f}" height="8" rx="4" fill="{SAND}" opacity=".45"/>')
-        g.append(f'<rect x="172" y="{y + 31}" width="{90 + r() * 120:.0f}" height="7" rx="3.5" fill="{DUNE}" opacity=".4"/>')
-        g.append(f'<rect x="{620 - i * 22}" y="{y + 23}" width="{60 + i * 22}" height="8" rx="4" fill="{MINT}" opacity="{.9 - i * .15:.2f}"/>')
+            g.append(f'<rect x="110" y="{y + 10}" width="44" height="34" rx="5" fill="{a["forest"]}"/>')
+            g.append(f'<path d="M112 {y + 42} L126 {y + 26} L136 {y + 35} L142 {y + 29} L152 {y + 42} Z" fill="{a["mint"]}" opacity=".9"/>')
+            g.append(f'<circle cx="143" cy="{y + 19}" r="4" fill="{a["sand"]}"/>')
+        g.append(f'<rect x="172" y="{y + 15}" width="{150 + r() * 190:.0f}" height="8" rx="4" fill="{a["sand"]}" opacity=".45"/>')
+        g.append(f'<rect x="172" y="{y + 31}" width="{90 + r() * 120:.0f}" height="7" rx="3.5" fill="{a["dune"]}" opacity=".4"/>')
+        g.append(f'<rect x="{620 - i * 22}" y="{y + 23}" width="{60 + i * 22}" height="8" rx="4" fill="{a["mint"]}" opacity="{.9 - i * .15:.2f}"/>')
         o.append(f'<g class="row" style="animation-delay:{i * .2:.2f}s">{"".join(g)}</g>')
     return "".join(o)
 
 
-def m_current():
-    return current(800, 500, "#F6EFE3", .5, 120, 31, steps=40, step_px=4.5, width=2.2)
+def m_current(a):
+    return current(800, 500, a["ink"], a["ink_alpha"], 120, 31, steps=40, step_px=4.5, width=2.2)
 
 
 MOTIF_CSS = (".ping{transform-box:fill-box;transform-origin:center;animation:ping 3.2s ease-out 1s infinite both}"
@@ -360,9 +366,9 @@ def cover(x, y, w, h, motif, t, uid, rx=16):
     s = (max if motif in ("quant", "current") else min)(w / 800, h / 500)
     dx, dy = x + (w - 800 * s) / 2, y + (h - 500 * s) / 2
     clip = f'<clipPath id="{uid}m"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}"/></clipPath>'
-    body = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{t["screen"]}"/>'
-            f'<g clip-path="url(#{uid}m)"><g transform="translate({dx:.1f} {dy:.1f}) scale({s:.4f})">{MOTIFS[motif]()}</g></g>'
-            f'<rect x="{x + .5}" y="{y + .5}" width="{w - 1}" height="{h - 1}" rx="{rx}" fill="none" stroke="#1F3A32"/>')
+    body = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{t["art"]["bg"]}"/>'
+            f'<g clip-path="url(#{uid}m)"><g transform="translate({dx:.1f} {dy:.1f}) scale({s:.4f})">{MOTIFS[motif](t["art"])}</g></g>'
+            f'<rect x="{x + .5}" y="{y + .5}" width="{w - 1}" height="{h - 1}" rx="{rx}" fill="none" stroke="{t["art"]["edge"]}"/>')
     return clip, body
 
 
