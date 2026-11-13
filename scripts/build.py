@@ -345,7 +345,7 @@ PROJECTS = [
     dict(key="crosscheck", name="Crosscheck", status="v0.3.0", motif="embed",
          href="https://github.com/rushlabs-ai/crosscheck",
          summary="Several local vision models describe a photo, and you hear where they disagree."),
-    dict(key="rerankd", name="rerankd", status="v0.1.1", motif="cli",
+    dict(key="rerankd", name="rerankd", status="v0.1.2", motif="cli",
          href="https://github.com/rushlabs-ai/rerankd",
          summary="Rerank endpoints for Ollama, using the reranker models you already pulled."),
     dict(key="rush-index", name="Rush Index", status="v0.2.0", motif="search",
