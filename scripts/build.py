@@ -351,7 +351,7 @@ PROJECTS = [
     dict(key="rush-index", name="Rush Index", status="v0.2.0", motif="search",
          href="https://github.com/rushlabs-ai/rush-index",
          summary="Search your documents and photos together, locally, on any laptop or an NVIDIA GPU."),
-    dict(key="rush-small", name="Rush Small", status="v1 research", motif="quant",
+    dict(key="rush-small", name="Rush Small", status="v1", motif="quant",
          href="https://github.com/rushlabs-ai/rush-small",
          summary="A 0.6B reranker trained only on commercially usable data, reproducible with one command."),
     dict(key="lab", name="The lab", status="rushlabs.ai", motif="current",
