@@ -190,7 +190,7 @@ def calm(uid, w, h, x, y, rw, rh):
 # ── Copy (mirrors rushlabs.ai: components/site/hero.tsx, lib/content/*) ───────
 HEADLINE = ["Open-source tools", "for open models."]
 HEADLINE_M = ["Open-source", "tools for", "open models."]
-INTRO = "Four released tools and a research model for fine-tuning, retrieval and local AI."
+INTRO = "Four tools and a reranker model for fine-tuning, retrieval and local AI, all released."
 HEADER_ALT = "Rush Labs, an applied AI lab. Open-source tools for open models. " + INTRO
 
 
